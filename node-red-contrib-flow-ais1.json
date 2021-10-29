@@ -1,0 +1,214 @@
+[
+    {
+        "id": "2e52f734.24923",
+        "type": "tab",
+        "label": "Unknown message types",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "9fcab966.bc614",
+        "type": "udp in",
+        "z": "2e52f734.24923",
+        "name": "rtl-ais",
+        "iface": "",
+        "port": "10110",
+        "ipv": "udp4",
+        "multicast": "false",
+        "group": "",
+        "datatype": "utf8",
+        "x": 90,
+        "y": 200,
+        "wires": [
+            [
+                "81a01fbd.a2c9b8"
+            ]
+        ]
+    },
+    {
+        "id": "553cc998.0601c",
+        "type": "ais-decoder",
+        "z": "2e52f734.24923",
+        "name": "",
+        "x": 230,
+        "y": 420,
+        "wires": [
+            [
+                "f5953766.e22fb8"
+            ]
+        ]
+    },
+    {
+        "id": "81a01fbd.a2c9b8",
+        "type": "split",
+        "z": "2e52f734.24923",
+        "name": "",
+        "splt": "\\r",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "x": 150,
+        "y": 320,
+        "wires": [
+            [
+                "553cc998.0601c"
+            ]
+        ],
+        "info": "If the datagram from rtl-ais contains multiple AIS message fragments, split them into individual node-red messages."
+    },
+    {
+        "id": "f5953766.e22fb8",
+        "type": "switch",
+        "z": "2e52f734.24923",
+        "name": "",
+        "property": "resultCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "2",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 4,
+        "x": 390,
+        "y": 360,
+        "wires": [
+            [
+                "513f9024.163418",
+                "9af47ae9.988648"
+            ],
+            [],
+            [],
+            [
+                "ad89fa5a.6972a8"
+            ]
+        ]
+    },
+    {
+        "id": "35905cb5.92cb04",
+        "type": "file",
+        "z": "2e52f734.24923",
+        "name": "",
+        "filename": "/home/pi/unknown",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 910,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "513f9024.163418",
+        "type": "function",
+        "z": "2e52f734.24923",
+        "name": "Pass known message",
+        "func": "interestingMessages = [6,7,8,13,16,25];\nif (interestingMessages.includes(msg.payload.messageType)) {\n        return msg;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 420,
+        "wires": [
+            [
+                "8e6c4ea2.c5ecb8"
+            ]
+        ]
+    },
+    {
+        "id": "8e6c4ea2.c5ecb8",
+        "type": "function",
+        "z": "2e52f734.24923",
+        "name": "Prep payload for file",
+        "func": "var i;\nvar s = \"\";\nfor (i=0;i<msg.originalAisMessage.length;i++) {\n    s += msg.originalAisMessage[i];\n}\nmsg.payload = s;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 920,
+        "y": 460,
+        "wires": [
+            [
+                "35905cb5.92cb04"
+            ]
+        ]
+    },
+    {
+        "id": "ad89fa5a.6972a8",
+        "type": "function",
+        "z": "2e52f734.24923",
+        "name": "Pass unknown message type",
+        "func": "if (msg.errorInfo.indexOf(\"Unsupported AIS message type\")!=-1) {\n    return msg;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 500,
+        "wires": [
+            [
+                "8e6c4ea2.c5ecb8"
+            ]
+        ]
+    },
+    {
+        "id": "2019ae46.884922",
+        "type": "sqlite",
+        "z": "2e52f734.24923",
+        "mydb": "295fca0c.9af166",
+        "sqlquery": "batch",
+        "sql": "",
+        "name": "Ships.db",
+        "x": 880,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9af47ae9.988648",
+        "type": "function",
+        "z": "2e52f734.24923",
+        "name": "Update database",
+        "func": "msg.topic = \"\";\n\n// Update \"last\" table for relevant message types\n\nrelevantMessages = [1,2,3,9,18,19];\n\nif (relevantMessages.indexOf(msg.payload.messageType)>=0) {\n    \n    msg.topic = \"insert or replace into last (mmsi\";\n\n    if (msg.payload.speedOverGround!==undefined) msg.topic += \",lastspeed\";\n    if (msg.payload.courseOverGround!==undefined) msg.topic += \",lastcourse\";\n    if (msg.payload.latitude!==undefined && msg.payload.longitude!==undefined) {\n        msg.topic += \",lastlat,lastlong\";\n    }\n\n    msg.topic += \",lasttime) values (\\\"\" + msg.payload.senderMmsi + \"\\\"\";\n    \n    if (msg.payload.speedOverGround!==undefined) msg.topic += \",\" + msg.payload.speedOverGround;\n    if (msg.payload.courseOverGround!==undefined) msg.topic += \",\" + msg.payload.courseOverGround;\n    if (msg.payload.latitude!==undefined && msg.payload.longitude!==undefined) {\n        msg.topic += \",\" + msg.payload.latitude + \",\" + msg.payload.longitude;\n    }\n\n    msg.topic += \", strftime('%s','now'));\\n\";\n}\n\n// Update \"ships\" table\n\nif (msg.payload.name) {\n    var s1 = \"insert into ships (mmsi,name\";\n    var s2 = \") values (\\\"\" + msg.payload.senderMmsi + \"\\\",\\\"\"+ msg.payload.name + \"\\\"\";\n    var s3 = \") on conflict (mmsi) do update set name=\\\"\" + msg.payload.name + \"\\\"\";\n    var s4 = \" where mmsi is \\\"\" + msg.payload.senderMmsi + \"\\\";\\n\";\n    if (msg.payload.shipType) {\n        s1 += \",type\";\n        s2 += \",\" + msg.payload.shipType;\n        s3 += \", type=\" + msg.payload.shipType;\n    }\n    if (msg.payload.destination) {\n        s1 += \",dest\";\n        s2 += \",\\\"\" + msg.payload.destination +\"\\\"\";\n        s3 += \", dest=\\\"\" + msg.payload.destination +\"\\\"\";\n    }\n    msg.topic += s1+s2+s3+s4;\n}\n\n// Update \"tracks\" table\n\nif (msg.payload.latitude && msg.payload.longitude) {\n    var course = msg.payload.courseOverGround;\n    if (course===undefined) course = \"NULL\";\n    var speed = msg.payload.speedOverGround;\n    if (speed===undefined) speed = \"NULL\";\n    msg.topic += \"insert into tracks (mmsi, lat, long, course, speed, time) values (\\\"\" +\n                msg.payload.senderMmsi + \"\\\", \" +\n                msg.payload.latitude + \", \" +\n                msg.payload.longitude + \", \" +\n                course + \", \" +\n                speed + \", strftime('%s','now'));\\n\";\n}\n\nif (msg.topic) return msg;\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 340,
+        "wires": [
+            [
+                "2019ae46.884922"
+            ]
+        ]
+    },
+    {
+        "id": "295fca0c.9af166",
+        "type": "sqlitedb",
+        "db": "/home/pi/ships.db",
+        "mode": "RWC"
+    }
+]
