@@ -1,15 +1,324 @@
 [
     {
-        "id": "2e52f734.24923",
+        "id": "248b38fb99b5cdfa",
         "type": "tab",
-        "label": "Unknown message types",
+        "label": "AIS 1",
         "disabled": false,
         "info": ""
     },
     {
-        "id": "9fcab966.bc614",
+        "id": "979239a83064a3f4",
+        "type": "http in",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "url": "/main",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 120,
+        "y": 560,
+        "wires": [
+            [
+                "57354988426377a5"
+            ]
+        ]
+    },
+    {
+        "id": "57354988426377a5",
+        "type": "template",
+        "z": "248b38fb99b5cdfa",
+        "name": "Main HTML",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<style>\nbody {\n  font-family: \"Lato\", sans-serif;\n}\n\n/* Fixed sidenav, full height */\n.sidenav {\n  height: 100%;\n  width: 200px;\n  position: fixed;\n  z-index: 1;\n  top: 0;\n  left: 0;\n  background-color: #111;\n  overflow-x: hidden;\n  padding-top: 20px;\n  padding-right: 0px;\n}\n\n/* Style the sidenav links and the dropdown button */\n.sidenav a, .dropdown-btn {\n  position: relative;\n  padding: 6px 8px 6px 16px;\n  text-decoration: none;\n  font-size: 20px;\n  color: #818181;\n  display: block;\n  border: none;\n  background: none;\n  width: 100%;\n  text-align: left;\n  cursor: pointer;\n  outline: none;\n}\n\n/* Tooltip text */\n .dropdown-btn .tooltiptext {\n  visibility: hidden;\n  background-color: white;\n  color: #111;\n  text-align: left;\n  padding: 5px 5px;\n  font-size: 15px;\n  /* Position the tooltip text */\n  position: absolute;\n  z-index: 1;\n  width: 120px;\n  top: 100%;\n  left: 50%; \n  margin-left: -60px;\n}\n\n/* On mouse-over */\n.sidenav a:hover, .dropdown-btn:hover {\n  color: #f1f1f1;\n}\n\n/* Show the tooltip text when you mouse over the tooltip container */\n.dropdown-btn:hover .tooltiptext {\n  visibility: visible;\n}\n\n/* Main content */\n.main {\n  margin-left: 200px; /* Same as the width of the sidenav */\n  /* font-size: 20px; Increased text to enable scrolling */\n  padding: 0px 0px;\n  height: 100%;\n  width: 100%;\n  border-style: none;\n  position: fixed;\n  top: 0;\n  left: 200;\n}\n\n/* Add an active class to the active dropdown button */\n.active {\n  background-color: green;\n  color: white;\n}\n\n/* Some media queries for responsiveness */\n@media screen and (max-height: 450px) {\n  .sidenav {padding-top: 15px;}\n  .sidenav a {font-size: 18px;}\n}\n\n</style>\n<script>\n\nfunction friendlyTime(tOld) {\n    var d = new Date();\n    var tNow = d.getTime()/1000;\n    var t = tNow - tOld;\n    var f = \"\";\n    if (t<60) f = conditionalPlural(t.toFixed(0),\"second ago\",\"seconds ago\");\n    else if (t<3600) f = conditionalPlural(Math.round(t/60),\"minute ago\",\"minutes ago\");\n    else if (t<86400) f = conditionalPlural(Math.round(t/3600),\"hour ago\",\"hours ago\");\n    else f = conditionalPlural(Math.round(t/86400),\"day ago\",\"days ago\");\n    return f;\n}\n\nfunction conditionalPlural(x,singular,plural) {\n    if (x<=1) return x+\" \"+singular;\n    return x+\" \"+plural;\n}\n\nasync function clickShip() {\n  var dropdown = document.getElementsByClassName(\"dropdown-btn\");\n  for (var i = 0; i < dropdown.length; i++) {\n    dropdown[i].classList.remove(\"active\");\n  }\n  clearMap();\n  var x = this.classList.add(\"active\");\n  showOnMap(this.id);\n}\n\nasync function clearMap() {\n  let recent = await fetch(\"clear\");\n  let result = await recent.text();\n}\n\nasync function showOnMap(mmsi) {\n  var url = \"show?mmsi=\"+mmsi;\n  let recent = await fetch(url);\n  let result = await recent.text();\n}\n\n\nasync function getRecentShips() {\n  document.getElementById(\"side\").innerHTML = \"\";\n  let recent = await fetch(\"rec\");\n  let result = await recent.text();\n  let recentShips = JSON.parse(result);\n  var sb = \"\";\n  for (var i=0;i<recentShips.length;i++) {\n    sb += \"<button class=\\\"dropdown-btn\\\" id=\\\"\"+recentShips[i].mmsi+\"\\\">\"+recentShips[i].name+\"<span class=\\\"tooltiptext\\\">\";\n    sb += friendlyTime(recentShips[i].time);\n    sb += \"</span></button>\\n\";\n  }\n  document.getElementById(\"side\").innerHTML = sb;\n  /* Loop through all ships to hook the click */\n  var dropdown = document.getElementsByClassName(\"dropdown-btn\");\n  for (i = 0; i < dropdown.length; i++) {\n    dropdown[i].addEventListener(\"click\", clickShip);\n  }\n  setTimeout(getRecentShips, 60000);\n}\n    \n</script>\n</head>\n\n<body onload=\"getRecentShips()\">\n\n<div id=\"side\" class=\"sidenav\">\n</div>\n\n<script>\n\n</script>\n\n<div class=\"main\">\n\n<iframe id=\"mapframe\" src=\"worldmap\" style=\"border:none;\" name=\"iframe_a\" title=\"Iframe Example\"></iframe>\n\n<script>\ndocument.getElementById(\"mapframe\").height = window.innerHeight;    \ndocument.getElementById(\"mapframe\").width = window.innerWidth-200;    \n</script>\n\n</div>\n\n</body>\n</html>\n",
+        "output": "str",
+        "x": 300,
+        "y": 560,
+        "wires": [
+            [
+                "9c4fe037c51605dd"
+            ]
+        ]
+    },
+    {
+        "id": "9c4fe037c51605dd",
+        "type": "http response",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 450,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "1a0aa9a4465875d2",
+        "type": "http in",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "url": "/rec",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 120,
+        "y": 1060,
+        "wires": [
+            [
+                "f5f4b2be893df1ae"
+            ]
+        ]
+    },
+    {
+        "id": "f5f4b2be893df1ae",
+        "type": "sqlite",
+        "z": "248b38fb99b5cdfa",
+        "mydb": "295fca0c.9af166",
+        "sqlquery": "fixed",
+        "sql": "select distinct\n  last.mmsi as mmsi, last.lasttime as time, lastspeed as speed,\n  lastlat as lat, lastlong as long,\n  lastcourse as course, ships.name as name, ships.type as shiptype, ships.dest as destination\nfrom last, ships\nwhere (ships.mmsi is last.mmsi)\nand (last.lasttime > strftime('%s','now')-3600*48)\norder by last.lasttime DESC LIMIT 20;",
+        "name": "Recent ships",
+        "x": 320,
+        "y": 1060,
+        "wires": [
+            [
+                "2f3a50729451343c"
+            ]
+        ]
+    },
+    {
+        "id": "2f3a50729451343c",
+        "type": "http response",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 560,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "c254eecbe560e378",
+        "type": "http in",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "url": "/show",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 120,
+        "y": 820,
+        "wires": [
+            [
+                "070f1020d25148bd",
+                "34bbdaba108ce7af"
+            ]
+        ]
+    },
+    {
+        "id": "34bbdaba108ce7af",
+        "type": "http response",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 270,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "6de783fc26c4ccf7",
+        "type": "debug",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 910,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "3a6e5ec32ec22f8f",
+        "type": "worldmap",
+        "z": "248b38fb99b5cdfa",
+        "name": "Ships",
+        "lat": "56.418072",
+        "lon": "-5.466887",
+        "zoom": "14",
+        "layer": "",
+        "cluster": "",
+        "maxage": "",
+        "usermenu": "show",
+        "layers": "show",
+        "panit": "false",
+        "panlock": "false",
+        "zoomlock": "false",
+        "hiderightclick": "false",
+        "coords": "none",
+        "showgrid": "false",
+        "allowFileDrop": "false",
+        "path": "/worldmap",
+        "mapname": "",
+        "mapurl": "",
+        "mapopt": "",
+        "mapwms": false,
+        "x": 1010,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "070f1020d25148bd",
+        "type": "function",
+        "z": "248b38fb99b5cdfa",
+        "name": "Define SQL query",
+        "func": "msg.topic = `select distinct\n  last.mmsi as mmsi,\n  last.lasttime as time,\n  lastspeed as speed,\n  lastlat as lat,\n  lastlong as lon,\n  lastcourse as heading,\n  ships.name as name,\n  ships.type as shiptype,\n  ships.dest as destination\n  from last, ships\n  where (ships.mmsi is last.mmsi)\n  and (ships.mmsi is \"${msg.payload.mmsi}\");`;\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 800,
+        "wires": [
+            [
+                "4ae065166a750319"
+            ]
+        ]
+    },
+    {
+        "id": "4ae065166a750319",
+        "type": "sqlite",
+        "z": "248b38fb99b5cdfa",
+        "mydb": "295fca0c.9af166",
+        "sqlquery": "msg.topic",
+        "sql": "",
+        "name": "Ship data from MMSI",
+        "x": 540,
+        "y": 800,
+        "wires": [
+            [
+                "e4daf6f94161df9f"
+            ]
+        ]
+    },
+    {
+        "id": "e4daf6f94161df9f",
+        "type": "function",
+        "z": "248b38fb99b5cdfa",
+        "name": "Set up map marker",
+        "func": "// Database result comes in an array - make it an object\nrow = msg.payload[0];\nmsg.payload = {\n    \"mmsi\" : row.mmsi,\n    \"time\" : row.time,\n    \"speed\" : row.speed,\n    \"lat\" : row.lat,\n    \"lon\" : row.lon,\n    \"heading\" : row.heading,\n    \"name\" : row.name,\n    \"shiptype\" : row.shiptype,\n    \"destination\" : row.destination\n};\n// Do we need to re-centre the map?\nif (!positionWithinBounds(msg.payload.lat,msg.payload.lon)) {\n    // Centre the map on the ship\n    var c = { \"payload\" : { \"command\" : { \"zoom\" : 14 } } };\n    c.payload.command.lat = msg.payload.lat;\n    c.payload.command.lon = msg.payload.lon;\n    node.send(c);\n}\n// Set attributee for this ship\nmsg.payload.layer = \"ships\";\nmsg.payload.icon = \"ship\";\nmsg.payload.iconColor = shipColour(msg.payload.shiptype);\n// Set the popup\nmsg.payload.contextmenu = \"\";\nmsg.payload.popup = `MMSI: ${msg.payload.mmsi}<br>\nType: ${textVesselType(msg.payload.shiptype)}<br>\nSpeed: ${msg.payload.speed}kt<br>\nHeading: ${compassPoint(msg.payload.heading)}<br>\nDestination: ${msg.payload.destination}<br>\nLast seen: ${friendlyTime(msg.payload.time)}`;\n// Done! Send it to the map.\nreturn msg;\n\n// Return the icon colour for a given ship type\nfunction shipColour(t) {\n    if (t>0 && t<20) return \"Gray\";\n    if (t>=20 && t<30) return \"Pink\";\n    if (t==30) return \"LightSalmon\";\n    if (t==31 || t==32) return \"LightCoral\";\n    if (t==33) return \"DimGray\";\n    if (t==34) return \"Indigo\";\n    if (t==35) return \"Khaki\";\n    if (t==36) return \"IndianRed\";\n    if (t==37) return \"HotPink\";\n    if (t==38 || t==39) return \"Gray\";\n    if (t>=40 && t<50) return \"OrangeRed\";\n    if (t>=50 && t<60) return \"SeaGreen\";\n    if (t>=60 && t<70) return \"Blue\";\n    if (t>=70 && t<80) return \"SandyBrown\";\n    if (t>=80 && t<90) return \"Red\";\n    return \"Gray\";\n}\n\n// Is the ship position within the bounds of the map?\nfunction positionWithinBounds(lat,lon) {\n    b = flow.get(\"mapBounds\");\n    if (lat>b.north || lat<b.south) return false;\n    if (lon>b.east || lon<b.west) return false;\n    return true;\n}\n\n// Return \"xxx ago\" for the time\nfunction friendlyTime(tOld) {\n    var d = new Date();\n    var tNow = d.getTime()/1000;\n    var t = tNow - tOld;\n    var f = \"\";\n    if (t<60) f = conditionalPlural(t.toFixed(0),\"second ago\",\"seconds ago\");\n    else if (t<3600) f = conditionalPlural(Math.round(t/60),\"minute ago\",\"minutes ago\");\n    else if (t<86400) f = conditionalPlural(Math.round(t/3600),\"hour ago\",\"hours ago\");\n    else f = conditionalPlural(Math.round(t/86400),\"day ago\",\"days ago\");\n    return f;\n}\n\n// Deal with plurals nicely\nfunction conditionalPlural(x,singular,plural) {\n    if (x<=1) return x+\" \"+singular;\n    return x+\" \"+plural;\n}\n\n// Return the compass point of a bearing\nfunction compassPoint(b) {\n    if (b>337.5) return \"N\";\n    if (b>292.5) return \"NW\";\n    if (b>247.5) return \"W\";\n    if (b>202.5) return \"SW\";\n    if (b>157.5) return \"S\";\n    if (b>112.5) return \"SE\";\n    if (b>67.5) return \"E\";\n    if (b>22.5) return \"NE\";\n    return \"N\";\n}\n\n// Explanation of ship type\nfunction textVesselType(t){\n    const unexpected = \"unexpected\";\n    const reserved = \"reserved\";\n    const shipType_enum = [\n  unexpected, // 0\n  reserved,   // 1\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,   //19\n  \"Wing in ground\", //20\n  \"Wing in ground, Hazardous category A\",\n  \"Wing in ground, Hazardous category B\",\n  \"Wing in ground, Hazardous category C\",\n  \"Wing in ground, Hazardous category D\",\n  \"Wing in ground\",\n  \"Wing in ground\",\n  \"Wing in ground\",\n  \"Wing in ground\",\n  \"Wing in ground\", //29\n  \"Fishing\",\n  \"Towing\",\n  \"Towing: length exceeds 200m or breadth exceeds 25m\",\n  \"Dredging or underwater operations\",\n  \"Diving operations\",\n  \"Military operations\",\n  \"Sailing\",\n  \"Pleasure craft\",\n  reserved,\n  reserved, //39\n  \"High speed craft\", //40\n  \"High speed craft, Hazardous category A\",\n  \"High speed craft, Hazardous category B\",\n  \"High speed craft, Hazardous category C\",\n  \"High speed craft, Hazardous category D\",\n  \"High speed craft\",\n  \"High speed craft\",\n  \"High speed craft\",\n  \"High speed craft\",\n  \"High speed craft\",\n  \"Pilot vessel\", //50\n  \"Search and rescue vessel\",\n  \"Tug\",\n  \"Port tender\",\n  \"Anti-pollution equipment\",\n  \"Law enforcement\",\n  \"Spare - Local Vessel\",\n  \"Spare - Local Vessel\",\n  \"Medical transport\",\n  \"Noncombatant ship according to RR Resolution No. 18\",\n  \"Passenger\", //60\n  \"Passenger, Hazardous category A\",\n  \"Passenger, Hazardous category B\",\n  \"Passenger, Hazardous category C\",\n  \"Passenger, Hazardous category D\",\n  \"Passenger\",\n  \"Passenger\",\n  \"Passenger\",\n  \"Passenger\",\n  \"Passenger\",\n  \"Cargo\", //70\n  \"Cargo, Hazardous category A\",\n  \"Cargo, Hazardous category B\",\n  \"Cargo, Hazardous category C\",\n  \"Cargo, Hazardous category D\",\n  \"Cargo\",\n  \"Cargo\",\n  \"Cargo\",\n  \"Cargo\",\n  \"Cargo\",\n  \"Tanker\", //80\n  \"Tanker, Hazardous category A\",\n  \"Tanker, Hazardous category B\",\n  \"Tanker, Hazardous category C\",\n  \"Tanker, Hazardous category D\",\n  \"Tanker\",\n  \"Tanker\",\n  \"Tanker\",\n  \"Tanker\",\n  \"Tanker\",\n  \"Other\", //90\n  \"Other, Hazardous category A\",\n  \"Other, Hazardous category B\",\n  \"Other, Hazardous category C\",\n  \"Other, Hazardous category D\",\n  \"Other\",\n  \"Other\",\n  \"Other\",\n  \"Other\",\n  \"Other\",\n    ];\n    if (t==null) return \"\";\n    if (t<shipType_enum.length) return shipType_enum[t] + \" (\"+ t +\")\";\n    return \"unknown (\"+t+\")\";\n}\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 770,
+        "y": 800,
+        "wires": [
+            [
+                "3a6e5ec32ec22f8f"
+            ]
+        ]
+    },
+    {
+        "id": "a9681a74d896640a",
+        "type": "http in",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "url": "/clear",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 120,
+        "y": 680,
+        "wires": [
+            [
+                "0105ddf48a2cb0d4",
+                "da0b6eddeee817f4"
+            ]
+        ],
+        "info": "Clear markers from the map"
+    },
+    {
+        "id": "0105ddf48a2cb0d4",
+        "type": "http response",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 270,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "da0b6eddeee817f4",
+        "type": "change",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"command\":{\"clear\":\"ships\"}}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 300,
+        "y": 660,
+        "wires": [
+            [
+                "3a6e5ec32ec22f8f"
+            ]
+        ]
+    },
+    {
+        "id": "0c411722754e0dbc",
+        "type": "worldmap in",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "path": "/worldmap",
+        "events": "all",
+        "x": 120,
+        "y": 940,
+        "wires": [
+            [
+                "ad127bb313e9cc57"
+            ]
+        ]
+    },
+    {
+        "id": "ad127bb313e9cc57",
+        "type": "function",
+        "z": "248b38fb99b5cdfa",
+        "name": "Store map bounds",
+        "func": "switch (msg.payload.action) {\n    case \"bounds\" :\n        var bounds = {};\n        bounds.south = msg.payload.south;\n        bounds.west = msg.payload.west;\n        bounds.north = msg.payload.north;\n        bounds.east = msg.payload.east;\n        flow.set(\"mapBounds\", bounds);\n        break;\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 940,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8e727f5487e63696",
         "type": "udp in",
-        "z": "2e52f734.24923",
+        "z": "248b38fb99b5cdfa",
         "name": "rtl-ais",
         "iface": "",
         "port": "10110",
@@ -18,30 +327,30 @@
         "group": "",
         "datatype": "utf8",
         "x": 90,
-        "y": 200,
+        "y": 100,
         "wires": [
             [
-                "81a01fbd.a2c9b8"
+                "89185eed82c33228"
             ]
         ]
     },
     {
-        "id": "553cc998.0601c",
+        "id": "5a2d093dee616b68",
         "type": "ais-decoder",
-        "z": "2e52f734.24923",
+        "z": "248b38fb99b5cdfa",
         "name": "",
         "x": 230,
-        "y": 420,
+        "y": 320,
         "wires": [
             [
-                "f5953766.e22fb8"
+                "04f8020c90d494ce"
             ]
         ]
     },
     {
-        "id": "81a01fbd.a2c9b8",
+        "id": "89185eed82c33228",
         "type": "split",
-        "z": "2e52f734.24923",
+        "z": "248b38fb99b5cdfa",
         "name": "",
         "splt": "\\r",
         "spltType": "str",
@@ -50,18 +359,18 @@
         "stream": false,
         "addname": "",
         "x": 150,
-        "y": 320,
+        "y": 220,
         "wires": [
             [
-                "553cc998.0601c"
+                "5a2d093dee616b68"
             ]
         ],
         "info": "If the datagram from rtl-ais contains multiple AIS message fragments, split them into individual node-red messages."
     },
     {
-        "id": "f5953766.e22fb8",
+        "id": "04f8020c90d494ce",
         "type": "switch",
-        "z": "2e52f734.24923",
+        "z": "248b38fb99b5cdfa",
         "name": "",
         "property": "resultCode",
         "propertyType": "msg",
@@ -89,23 +398,23 @@
         "repair": false,
         "outputs": 4,
         "x": 390,
-        "y": 360,
+        "y": 260,
         "wires": [
             [
-                "513f9024.163418",
-                "9af47ae9.988648"
+                "0aab23eed02a8653",
+                "48742ecc1c10b071"
             ],
             [],
             [],
             [
-                "ad89fa5a.6972a8"
+                "6d61e4a87d0a0144"
             ]
         ]
     },
     {
-        "id": "35905cb5.92cb04",
+        "id": "e33a340193db0ee3",
         "type": "file",
-        "z": "2e52f734.24923",
+        "z": "248b38fb99b5cdfa",
         "name": "",
         "filename": "/home/pi/unknown",
         "appendNewline": true,
@@ -113,15 +422,15 @@
         "overwriteFile": "false",
         "encoding": "none",
         "x": 910,
-        "y": 580,
+        "y": 480,
         "wires": [
             []
         ]
     },
     {
-        "id": "513f9024.163418",
+        "id": "0aab23eed02a8653",
         "type": "function",
-        "z": "2e52f734.24923",
+        "z": "248b38fb99b5cdfa",
         "name": "Pass known message",
         "func": "interestingMessages = [6,7,8,13,16,25];\nif (interestingMessages.includes(msg.payload.messageType)) {\n        return msg;\n}",
         "outputs": 1,
@@ -130,33 +439,33 @@
         "finalize": "",
         "libs": [],
         "x": 660,
-        "y": 420,
+        "y": 320,
         "wires": [
             [
-                "8e6c4ea2.c5ecb8"
+                "9a7288bf5aaeae7b"
             ]
         ]
     },
     {
-        "id": "8e6c4ea2.c5ecb8",
+        "id": "9a7288bf5aaeae7b",
         "type": "function",
-        "z": "2e52f734.24923",
+        "z": "248b38fb99b5cdfa",
         "name": "Prep payload for file",
         "func": "var i;\nvar s = \"\";\nfor (i=0;i<msg.originalAisMessage.length;i++) {\n    s += msg.originalAisMessage[i];\n}\nmsg.payload = s;\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "x": 920,
-        "y": 460,
+        "y": 360,
         "wires": [
             [
-                "35905cb5.92cb04"
+                "e33a340193db0ee3"
             ]
         ]
     },
     {
-        "id": "ad89fa5a.6972a8",
+        "id": "6d61e4a87d0a0144",
         "type": "function",
-        "z": "2e52f734.24923",
+        "z": "248b38fb99b5cdfa",
         "name": "Pass unknown message type",
         "func": "if (msg.errorInfo.indexOf(\"Unsupported AIS message type\")!=-1) {\n    return msg;\n}",
         "outputs": 1,
@@ -165,31 +474,31 @@
         "finalize": "",
         "libs": [],
         "x": 640,
-        "y": 500,
+        "y": 400,
         "wires": [
             [
-                "8e6c4ea2.c5ecb8"
+                "9a7288bf5aaeae7b"
             ]
         ]
     },
     {
-        "id": "2019ae46.884922",
+        "id": "38e70872b6a823f2",
         "type": "sqlite",
-        "z": "2e52f734.24923",
+        "z": "248b38fb99b5cdfa",
         "mydb": "295fca0c.9af166",
         "sqlquery": "batch",
         "sql": "",
         "name": "Ships.db",
         "x": 880,
-        "y": 340,
+        "y": 240,
         "wires": [
             []
         ]
     },
     {
-        "id": "9af47ae9.988648",
+        "id": "48742ecc1c10b071",
         "type": "function",
-        "z": "2e52f734.24923",
+        "z": "248b38fb99b5cdfa",
         "name": "Update database",
         "func": "msg.topic = \"\";\n\n// Update \"last\" table for relevant message types\n\nrelevantMessages = [1,2,3,9,18,19];\n\nif (relevantMessages.indexOf(msg.payload.messageType)>=0) {\n    \n    msg.topic = \"insert or replace into last (mmsi\";\n\n    if (msg.payload.speedOverGround!==undefined) msg.topic += \",lastspeed\";\n    if (msg.payload.courseOverGround!==undefined) msg.topic += \",lastcourse\";\n    if (msg.payload.latitude!==undefined && msg.payload.longitude!==undefined) {\n        msg.topic += \",lastlat,lastlong\";\n    }\n\n    msg.topic += \",lasttime) values (\\\"\" + msg.payload.senderMmsi + \"\\\"\";\n    \n    if (msg.payload.speedOverGround!==undefined) msg.topic += \",\" + msg.payload.speedOverGround;\n    if (msg.payload.courseOverGround!==undefined) msg.topic += \",\" + msg.payload.courseOverGround;\n    if (msg.payload.latitude!==undefined && msg.payload.longitude!==undefined) {\n        msg.topic += \",\" + msg.payload.latitude + \",\" + msg.payload.longitude;\n    }\n\n    msg.topic += \", strftime('%s','now'));\\n\";\n}\n\n// Update \"ships\" table\n\nif (msg.payload.name) {\n    var s1 = \"insert into ships (mmsi,name\";\n    var s2 = \") values (\\\"\" + msg.payload.senderMmsi + \"\\\",\\\"\"+ msg.payload.name + \"\\\"\";\n    var s3 = \") on conflict (mmsi) do update set name=\\\"\" + msg.payload.name + \"\\\"\";\n    var s4 = \" where mmsi is \\\"\" + msg.payload.senderMmsi + \"\\\";\\n\";\n    if (msg.payload.shipType) {\n        s1 += \",type\";\n        s2 += \",\" + msg.payload.shipType;\n        s3 += \", type=\" + msg.payload.shipType;\n    }\n    if (msg.payload.destination) {\n        s1 += \",dest\";\n        s2 += \",\\\"\" + msg.payload.destination +\"\\\"\";\n        s3 += \", dest=\\\"\" + msg.payload.destination +\"\\\"\";\n    }\n    msg.topic += s1+s2+s3+s4;\n}\n\n// Update \"tracks\" table\n\nif (msg.payload.latitude && msg.payload.longitude) {\n    var course = msg.payload.courseOverGround;\n    if (course===undefined) course = \"NULL\";\n    var speed = msg.payload.speedOverGround;\n    if (speed===undefined) speed = \"NULL\";\n    msg.topic += \"insert into tracks (mmsi, lat, long, course, speed, time) values (\\\"\" +\n                msg.payload.senderMmsi + \"\\\", \" +\n                msg.payload.latitude + \", \" +\n                msg.payload.longitude + \", \" +\n                course + \", \" +\n                speed + \", strftime('%s','now'));\\n\";\n}\n\nif (msg.topic) return msg;\n\n",
         "outputs": 1,
@@ -198,10 +507,10 @@
         "finalize": "",
         "libs": [],
         "x": 670,
-        "y": 340,
+        "y": 240,
         "wires": [
             [
-                "2019ae46.884922"
+                "38e70872b6a823f2"
             ]
         ]
     },
