@@ -32,7 +32,7 @@
         "fieldType": "msg",
         "format": "handlebars",
         "syntax": "mustache",
-        "template": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<style>\nbody {\n  font-family: \"Lato\", sans-serif;\n}\n\n/* Fixed sidenav, full height */\n.sidenav {\n  height: 100%;\n  width: 200px;\n  position: fixed;\n  z-index: 1;\n  top: 0;\n  left: 0;\n  background-color: #111;\n  overflow-x: hidden;\n  padding-top: 20px;\n  padding-right: 0px;\n}\n\n/* Style the sidenav links and the dropdown button */\n.sidenav a, .dropdown-btn {\n  position: relative;\n  padding: 6px 8px 6px 16px;\n  text-decoration: none;\n  font-size: 20px;\n  color: #818181;\n  display: block;\n  border: none;\n  background: none;\n  width: 100%;\n  text-align: left;\n  cursor: pointer;\n  outline: none;\n}\n\n/* Tooltip text */\n .dropdown-btn .tooltiptext {\n  visibility: hidden;\n  background-color: white;\n  color: #111;\n  text-align: left;\n  padding: 5px 5px;\n  font-size: 15px;\n  /* Position the tooltip text */\n  position: absolute;\n  z-index: 1;\n  width: 120px;\n  top: 100%;\n  left: 50%; \n  margin-left: -60px;\n}\n\n/* On mouse-over */\n.sidenav a:hover, .dropdown-btn:hover {\n  color: #f1f1f1;\n}\n\n/* Show the tooltip text when you mouse over the tooltip container */\n.dropdown-btn:hover .tooltiptext {\n  visibility: visible;\n}\n\n/* Main content */\n.main {\n  margin-left: 200px; /* Same as the width of the sidenav */\n  /* font-size: 20px; Increased text to enable scrolling */\n  padding: 0px 0px;\n  height: 100%;\n  width: 100%;\n  border-style: none;\n  position: fixed;\n  top: 0;\n  left: 200;\n}\n\n/* Add an active class to the active dropdown button */\n.active {\n  background-color: green;\n  color: white;\n}\n\n/* Some media queries for responsiveness */\n@media screen and (max-height: 450px) {\n  .sidenav {padding-top: 15px;}\n  .sidenav a {font-size: 18px;}\n}\n\n</style>\n<script>\n\nfunction friendlyTime(tOld) {\n    var d = new Date();\n    var tNow = d.getTime()/1000;\n    var t = tNow - tOld;\n    var f = \"\";\n    if (t<60) f = conditionalPlural(t.toFixed(0),\"second ago\",\"seconds ago\");\n    else if (t<3600) f = conditionalPlural(Math.round(t/60),\"minute ago\",\"minutes ago\");\n    else if (t<86400) f = conditionalPlural(Math.round(t/3600),\"hour ago\",\"hours ago\");\n    else f = conditionalPlural(Math.round(t/86400),\"day ago\",\"days ago\");\n    return f;\n}\n\nfunction conditionalPlural(x,singular,plural) {\n    if (x<=1) return x+\" \"+singular;\n    return x+\" \"+plural;\n}\n\nasync function clickShip() {\n  var dropdown = document.getElementsByClassName(\"dropdown-btn\");\n  for (var i = 0; i < dropdown.length; i++) {\n    dropdown[i].classList.remove(\"active\");\n  }\n  clearMap();\n  var x = this.classList.add(\"active\");\n  showOnMap(this.id);\n}\n\nasync function clearMap() {\n  let recent = await fetch(\"clear\");\n  let result = await recent.text();\n}\n\nasync function showOnMap(mmsi) {\n  var url = \"show?mmsi=\"+mmsi;\n  let recent = await fetch(url);\n  let result = await recent.text();\n}\n\n\nasync function getRecentShips() {\n  document.getElementById(\"side\").innerHTML = \"\";\n  let recent = await fetch(\"rec\");\n  let result = await recent.text();\n  let recentShips = JSON.parse(result);\n  var sb = \"\";\n  for (var i=0;i<recentShips.length;i++) {\n    sb += \"<button class=\\\"dropdown-btn\\\" id=\\\"\"+recentShips[i].mmsi+\"\\\">\"+recentShips[i].name+\"<span class=\\\"tooltiptext\\\">\";\n    sb += friendlyTime(recentShips[i].time);\n    sb += \"</span></button>\\n\";\n  }\n  document.getElementById(\"side\").innerHTML = sb;\n  /* Loop through all ships to hook the click */\n  var dropdown = document.getElementsByClassName(\"dropdown-btn\");\n  for (i = 0; i < dropdown.length; i++) {\n    dropdown[i].addEventListener(\"click\", clickShip);\n  }\n  setTimeout(getRecentShips, 60000);\n}\n    \n</script>\n</head>\n\n<body onload=\"getRecentShips()\">\n\n<div id=\"side\" class=\"sidenav\">\n</div>\n\n<script>\n\n</script>\n\n<div class=\"main\">\n\n<iframe id=\"mapframe\" src=\"worldmap\" style=\"border:none;\" name=\"iframe_a\" title=\"Iframe Example\"></iframe>\n\n<script>\ndocument.getElementById(\"mapframe\").height = window.innerHeight;    \ndocument.getElementById(\"mapframe\").width = window.innerWidth-200;    \n</script>\n\n</div>\n\n</body>\n</html>\n",
+        "template": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<style>\nbody {\n  font-family: \"Lato\", sans-serif;\n  margin-left: 1px; \n}\n\n/* Fixed sidenav, full height */\n.sidenav {\n  height: 100%;\n  width: 200px;\n  position: fixed;\n  z-index: 1;\n  top: 0;\n  left: 0;\n  background-color: #111;\n  overflow-x: hidden;\n  padding-top: 20px;\n  padding-right: 0px;\n}\n\n/* Style the ship button */\n.ship-btn {\n  position: relative;\n  padding: 6px 8px 6px 16px;\n  text-decoration: none;\n  font-size: 20px;\n  color: #818181;\n  display: block;\n  border: none;\n  background: none;\n  width: 100%;\n  text-align: left;\n  cursor: pointer;\n  outline: none;\n}\n\n/* Tooltip text */\n .ship-btn .tooltiptext {\n  visibility: hidden;\n  background-color: white;\n  color: #111;\n  text-align: left;\n  padding: 5px 5px;\n  font-size: 12px;\n  border-radius: 2px;\n  /* Position the tooltip text */\n  position: absolute;\n  z-index: 1;\n  width: 120px;\n  top: 100%;\n  left: 50%; \n  margin-left: -60px;\n}\n\n/* On mouse-over */\n.ship-btn:hover {\n  color: White;\n}\n\n/* Show the tooltip text when you mouse over the tooltip container */\n.ship-btn:hover .tooltiptext {\n  visibility: visible;\n}\n\n.second {\n    color: Beige;\n}\n\n.minute {\n    color: BurlyWood;\n}\n\n.hour {\n    color: Peru;\n}\n\n.day {\n    color: Brown;\n}\n\n/* Main content */\n.main {\n  margin-left: 200px; /* Same as the width of the sidenav */\n  padding: 0px 0px;\n  height: 100%;\n  width: 100%;\n  border-style: none;\n  position: fixed;\n  top: 0;\n  left: 200;\n}\n\n/* Add an active class to the active ship button */\n.active {\n  background-color: green;\n  color: white;\n}\n\n/* Some media queries for responsiveness */\n@media screen and (max-height: 450px) {\n  .sidenav {padding-top: 15px;}\n  .sidenav a {font-size: 18px;}\n}\n\n</style>\n<script>\n\nfunction friendlyTime(tNow,tOld) {\n    var t = tNow - tOld;\n    var f = {};\n    if (t<60) {\n        f.unit = \"second\";\n        f.value = t.toFixed(0);\n    }\n    else if (t<3600) {\n        f.unit = \"minute\";\n        f.value = Math.round(t/60);\n    }\n    else if (t<86400) {\n        f.unit = \"hour\";\n        f.value = Math.round(t/3600);\n    }\n    else {\n        f.unit = \"day\";\n        f.value = Math.round(t/86400);\n    }\n    f.text = f.value + \" \" + f.unit;\n    if (f.value>1) f.text += \"s\";\n    return f;\n}\n\nasync function clickShip() {\n  let ship = document.getElementsByClassName(\"ship-btn\");\n  for (let i = 0; i < ship.length; i++) {\n    ship[i].classList.remove(\"active\");\n  }\n  clearMap();\n  this.classList.add(\"active\");\n  showOnMap(this.id);\n}\n\nasync function clearMap() {\n  let recent = await fetch(\"clear\");\n  let result = await recent.text();\n}\n\nasync function showOnMap(mmsi) {\n  let url = \"show?mmsi=\"+mmsi;\n  let recent = await fetch(url);\n  let result = await recent.text();\n}\n\nasync function getRecentShips() {\n  document.getElementById(\"side\").innerHTML = \"\";\n  let recent = await fetch(\"rec\");\n  let result = await recent.text();\n  let recentShips = JSON.parse(result);\n  let sb = \"\";\n  let d = new Date();\n  let tNow = d.getTime()/1000;\n  for (var i=0;i<recentShips.length;i++) {\n    var f = friendlyTime(tNow,recentShips[i].time);\n    sb += \"<button class=\\\"ship-btn \"+f.unit+\"\\\" id=\\\"\"+recentShips[i].mmsi+\"\\\">\"+recentShips[i].name;\n    sb += \"<span class=\\\"tooltiptext\\\">\"+f.text+\" ago</span>\";\n    sb += \"</button>\\n\";\n  }\n  document.getElementById(\"side\").innerHTML = sb;\n  /* Loop through all ships to hook the click */\n  let ship = document.getElementsByClassName(\"ship-btn\");\n  for (i = 0; i < ship.length; i++) {\n    ship[i].addEventListener(\"click\", clickShip);\n  }\n  setTimeout(getRecentShips, 60000);\n}\n    \nfunction adjustMapSize() {\n  document.getElementById(\"mapframe\").height = window.innerHeight;    \n  document.getElementById(\"mapframe\").width = window.innerWidth-200;\n}\n\n</script>\n</head>\n\n<body onload=\"getRecentShips()\" onresize=\"adjustMapSize()\">\n\n<div id=\"side\" class=\"sidenav\">\n</div>\n\n<div class=\"main\">\n\n<iframe id=\"mapframe\" src=\"worldmap\" style=\"border:none;\" name=\"iframe_a\" title=\"Map of ship positions\"></iframe>\n\n<script>\nadjustMapSize();\n</script>\n\n</div>\n\n</body>\n</html>\n",
         "output": "str",
         "x": 300,
         "y": 560,
@@ -76,9 +76,9 @@
         "z": "248b38fb99b5cdfa",
         "mydb": "295fca0c.9af166",
         "sqlquery": "fixed",
-        "sql": "select distinct\n  last.mmsi as mmsi, last.lasttime as time, lastspeed as speed,\n  lastlat as lat, lastlong as long,\n  lastcourse as course, ships.name as name, ships.type as shiptype, ships.dest as destination\nfrom last, ships\nwhere (ships.mmsi is last.mmsi)\nand (last.lasttime > strftime('%s','now')-3600*48)\norder by last.lasttime DESC LIMIT 20;",
+        "sql": "select distinct\n  last.mmsi as mmsi, last.lasttime as time, lastspeed as speed,\n  lastlat as lat, lastlong as long,\n  lastcourse as course, ships.name as name, ships.type as shiptype, ships.dest as destination\nfrom last, ships\nwhere (ships.mmsi is last.mmsi)\nand (last.lasttime > strftime('%s','now')-3600*24*2)\norder by last.lasttime DESC LIMIT 20;",
         "name": "Recent ships",
-        "x": 320,
+        "x": 290,
         "y": 1060,
         "wires": [
             [
@@ -93,7 +93,7 @@
         "name": "",
         "statusCode": "",
         "headers": {},
-        "x": 560,
+        "x": 470,
         "y": 1060,
         "wires": []
     },
@@ -110,8 +110,8 @@
         "y": 820,
         "wires": [
             [
-                "070f1020d25148bd",
-                "34bbdaba108ce7af"
+                "34bbdaba108ce7af",
+                "ce4b7bda8fa5d1fb"
             ]
         ]
     },
@@ -127,29 +127,12 @@
         "wires": []
     },
     {
-        "id": "6de783fc26c4ccf7",
-        "type": "debug",
-        "z": "248b38fb99b5cdfa",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 910,
-        "y": 940,
-        "wires": []
-    },
-    {
         "id": "3a6e5ec32ec22f8f",
         "type": "worldmap",
         "z": "248b38fb99b5cdfa",
-        "name": "Ships",
-        "lat": "56.418072",
-        "lon": "-5.466887",
+        "name": "Ships map",
+        "lat": "",
+        "lon": "",
         "zoom": "14",
         "layer": "",
         "cluster": "",
@@ -168,36 +151,17 @@
         "mapurl": "",
         "mapopt": "",
         "mapwms": false,
-        "x": 1010,
+        "x": 1030,
         "y": 720,
         "wires": []
-    },
-    {
-        "id": "070f1020d25148bd",
-        "type": "function",
-        "z": "248b38fb99b5cdfa",
-        "name": "Define SQL query",
-        "func": "msg.topic = `select distinct\n  last.mmsi as mmsi,\n  last.lasttime as time,\n  lastspeed as speed,\n  lastlat as lat,\n  lastlong as lon,\n  lastcourse as heading,\n  ships.name as name,\n  ships.type as shiptype,\n  ships.dest as destination\n  from last, ships\n  where (ships.mmsi is last.mmsi)\n  and (ships.mmsi is \"${msg.payload.mmsi}\");`;\n\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 310,
-        "y": 800,
-        "wires": [
-            [
-                "4ae065166a750319"
-            ]
-        ]
     },
     {
         "id": "4ae065166a750319",
         "type": "sqlite",
         "z": "248b38fb99b5cdfa",
         "mydb": "295fca0c.9af166",
-        "sqlquery": "msg.topic",
-        "sql": "",
+        "sqlquery": "prepared",
+        "sql": "select distinct\n  last.mmsi as mmsi,\n  last.lasttime as time,\n  lastspeed as speed,\n  lastlat as lat,\n  lastlong as lon,\n  lastcourse as heading,\n  ships.name as name,\n  ships.type as shiptype,\n  ships.dest as destination\n  from last, ships\n  where (ships.mmsi is last.mmsi)\n  and (ships.mmsi is $mmsi);",
         "name": "Ship data from MMSI",
         "x": 540,
         "y": 800,
@@ -212,7 +176,7 @@
         "type": "function",
         "z": "248b38fb99b5cdfa",
         "name": "Set up map marker",
-        "func": "// Database result comes in an array - make it an object\nrow = msg.payload[0];\nmsg.payload = {\n    \"mmsi\" : row.mmsi,\n    \"time\" : row.time,\n    \"speed\" : row.speed,\n    \"lat\" : row.lat,\n    \"lon\" : row.lon,\n    \"heading\" : row.heading,\n    \"name\" : row.name,\n    \"shiptype\" : row.shiptype,\n    \"destination\" : row.destination\n};\n// Do we need to re-centre the map?\nif (!positionWithinBounds(msg.payload.lat,msg.payload.lon)) {\n    // Centre the map on the ship\n    var c = { \"payload\" : { \"command\" : { \"zoom\" : 14 } } };\n    c.payload.command.lat = msg.payload.lat;\n    c.payload.command.lon = msg.payload.lon;\n    node.send(c);\n}\n// Set attributee for this ship\nmsg.payload.layer = \"ships\";\nmsg.payload.icon = \"ship\";\nmsg.payload.iconColor = shipColour(msg.payload.shiptype);\n// Set the popup\nmsg.payload.contextmenu = \"\";\nmsg.payload.popup = `MMSI: ${msg.payload.mmsi}<br>\nType: ${textVesselType(msg.payload.shiptype)}<br>\nSpeed: ${msg.payload.speed}kt<br>\nHeading: ${compassPoint(msg.payload.heading)}<br>\nDestination: ${msg.payload.destination}<br>\nLast seen: ${friendlyTime(msg.payload.time)}`;\n// Done! Send it to the map.\nreturn msg;\n\n// Return the icon colour for a given ship type\nfunction shipColour(t) {\n    if (t>0 && t<20) return \"Gray\";\n    if (t>=20 && t<30) return \"Pink\";\n    if (t==30) return \"LightSalmon\";\n    if (t==31 || t==32) return \"LightCoral\";\n    if (t==33) return \"DimGray\";\n    if (t==34) return \"Indigo\";\n    if (t==35) return \"Khaki\";\n    if (t==36) return \"IndianRed\";\n    if (t==37) return \"HotPink\";\n    if (t==38 || t==39) return \"Gray\";\n    if (t>=40 && t<50) return \"OrangeRed\";\n    if (t>=50 && t<60) return \"SeaGreen\";\n    if (t>=60 && t<70) return \"Blue\";\n    if (t>=70 && t<80) return \"SandyBrown\";\n    if (t>=80 && t<90) return \"Red\";\n    return \"Gray\";\n}\n\n// Is the ship position within the bounds of the map?\nfunction positionWithinBounds(lat,lon) {\n    b = flow.get(\"mapBounds\");\n    if (lat>b.north || lat<b.south) return false;\n    if (lon>b.east || lon<b.west) return false;\n    return true;\n}\n\n// Return \"xxx ago\" for the time\nfunction friendlyTime(tOld) {\n    var d = new Date();\n    var tNow = d.getTime()/1000;\n    var t = tNow - tOld;\n    var f = \"\";\n    if (t<60) f = conditionalPlural(t.toFixed(0),\"second ago\",\"seconds ago\");\n    else if (t<3600) f = conditionalPlural(Math.round(t/60),\"minute ago\",\"minutes ago\");\n    else if (t<86400) f = conditionalPlural(Math.round(t/3600),\"hour ago\",\"hours ago\");\n    else f = conditionalPlural(Math.round(t/86400),\"day ago\",\"days ago\");\n    return f;\n}\n\n// Deal with plurals nicely\nfunction conditionalPlural(x,singular,plural) {\n    if (x<=1) return x+\" \"+singular;\n    return x+\" \"+plural;\n}\n\n// Return the compass point of a bearing\nfunction compassPoint(b) {\n    if (b>337.5) return \"N\";\n    if (b>292.5) return \"NW\";\n    if (b>247.5) return \"W\";\n    if (b>202.5) return \"SW\";\n    if (b>157.5) return \"S\";\n    if (b>112.5) return \"SE\";\n    if (b>67.5) return \"E\";\n    if (b>22.5) return \"NE\";\n    return \"N\";\n}\n\n// Explanation of ship type\nfunction textVesselType(t){\n    const unexpected = \"unexpected\";\n    const reserved = \"reserved\";\n    const shipType_enum = [\n  unexpected, // 0\n  reserved,   // 1\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,   //19\n  \"Wing in ground\", //20\n  \"Wing in ground, Hazardous category A\",\n  \"Wing in ground, Hazardous category B\",\n  \"Wing in ground, Hazardous category C\",\n  \"Wing in ground, Hazardous category D\",\n  \"Wing in ground\",\n  \"Wing in ground\",\n  \"Wing in ground\",\n  \"Wing in ground\",\n  \"Wing in ground\", //29\n  \"Fishing\",\n  \"Towing\",\n  \"Towing: length exceeds 200m or breadth exceeds 25m\",\n  \"Dredging or underwater operations\",\n  \"Diving operations\",\n  \"Military operations\",\n  \"Sailing\",\n  \"Pleasure craft\",\n  reserved,\n  reserved, //39\n  \"High speed craft\", //40\n  \"High speed craft, Hazardous category A\",\n  \"High speed craft, Hazardous category B\",\n  \"High speed craft, Hazardous category C\",\n  \"High speed craft, Hazardous category D\",\n  \"High speed craft\",\n  \"High speed craft\",\n  \"High speed craft\",\n  \"High speed craft\",\n  \"High speed craft\",\n  \"Pilot vessel\", //50\n  \"Search and rescue vessel\",\n  \"Tug\",\n  \"Port tender\",\n  \"Anti-pollution equipment\",\n  \"Law enforcement\",\n  \"Spare - Local Vessel\",\n  \"Spare - Local Vessel\",\n  \"Medical transport\",\n  \"Noncombatant ship according to RR Resolution No. 18\",\n  \"Passenger\", //60\n  \"Passenger, Hazardous category A\",\n  \"Passenger, Hazardous category B\",\n  \"Passenger, Hazardous category C\",\n  \"Passenger, Hazardous category D\",\n  \"Passenger\",\n  \"Passenger\",\n  \"Passenger\",\n  \"Passenger\",\n  \"Passenger\",\n  \"Cargo\", //70\n  \"Cargo, Hazardous category A\",\n  \"Cargo, Hazardous category B\",\n  \"Cargo, Hazardous category C\",\n  \"Cargo, Hazardous category D\",\n  \"Cargo\",\n  \"Cargo\",\n  \"Cargo\",\n  \"Cargo\",\n  \"Cargo\",\n  \"Tanker\", //80\n  \"Tanker, Hazardous category A\",\n  \"Tanker, Hazardous category B\",\n  \"Tanker, Hazardous category C\",\n  \"Tanker, Hazardous category D\",\n  \"Tanker\",\n  \"Tanker\",\n  \"Tanker\",\n  \"Tanker\",\n  \"Tanker\",\n  \"Other\", //90\n  \"Other, Hazardous category A\",\n  \"Other, Hazardous category B\",\n  \"Other, Hazardous category C\",\n  \"Other, Hazardous category D\",\n  \"Other\",\n  \"Other\",\n  \"Other\",\n  \"Other\",\n  \"Other\",\n    ];\n    if (t==null) return \"\";\n    if (t<shipType_enum.length) return shipType_enum[t] + \" (\"+ t +\")\";\n    return \"unknown (\"+t+\")\";\n}\n",
+        "func": "// Database result comes in an array - make it an object\nlet row = msg.payload[0];\nmsg.payload = row;\n// Do we need to re-centre the map?\nif (!positionWithinBounds(msg.payload.lat,msg.payload.lon)) {\n    // Centre the map on the ship\n    let c = { \"payload\" : { \"command\" : { \"zoom\" : 14 } } };\n    c.payload.command.lat = msg.payload.lat;\n    c.payload.command.lon = msg.payload.lon;\n    node.send(c);\n}\n// Set attributes for this ship\nmsg.payload.layer = \"ships\";\nmsg.payload.icon = \"ship\";\nmsg.payload.iconColor = shipColour(msg.payload.shiptype);\n// Set the popup\nmsg.payload.contextmenu = \"\";\nmsg.payload.popup = `MMSI: ${msg.payload.mmsi}<br>\nType: ${textVesselType(msg.payload.shiptype)}<br>\nSpeed: ${msg.payload.speed}kt<br>\nHeading: ${compassPoint(msg.payload.heading)}<br>\nDestination: ${msg.payload.destination}<br>\nLast seen: ${friendlyTime(msg.payload.time)}`;\ndelete msg.payload.speed; // so as not to show a vector\n// Done! Send it to the map.\nreturn msg;\n\n// Return the icon colour for a given ship type\nfunction shipColour(t) {\n    if (t>0 && t<20) return \"Gray\";\n    if (t>=20 && t<30) return \"Pink\";\n    if (t==30) return \"LightSalmon\";\n    if (t==31 || t==32) return \"LightCoral\";\n    if (t==33) return \"DimGray\";\n    if (t==34) return \"Indigo\";\n    if (t==35) return \"Khaki\";\n    if (t==36) return \"IndianRed\";\n    if (t==37) return \"HotPink\";\n    if (t==38 || t==39) return \"Gray\";\n    if (t>=40 && t<50) return \"OrangeRed\";\n    if (t>=50 && t<60) return \"SeaGreen\";\n    if (t>=60 && t<70) return \"Blue\";\n    if (t>=70 && t<80) return \"SandyBrown\";\n    if (t>=80 && t<90) return \"Red\";\n    return \"Gray\";\n}\n\n// Is the ship position within the bounds of the map?\nfunction positionWithinBounds(lat,lon) {\n    let b = flow.get(\"mapBounds\");\n    if (lat>b.north || lat<b.south) return false;\n    if (lon>b.east || lon<b.west) return false;\n    return true;\n}\n\n// Return \"xxx ago\" for the time\nfunction friendlyTime(tOld) {\n    let d = new Date();\n    let tNow = d.getTime()/1000;\n    let t = tNow - tOld;\n    let f = \"\";\n    if (t<60) f = conditionalPlural(t.toFixed(0),\"second ago\",\"seconds ago\");\n    else if (t<3600) f = conditionalPlural(Math.round(t/60),\"minute ago\",\"minutes ago\");\n    else if (t<86400) f = conditionalPlural(Math.round(t/3600),\"hour ago\",\"hours ago\");\n    else f = conditionalPlural(Math.round(t/86400),\"day ago\",\"days ago\");\n    return f;\n}\n\n// Deal with plurals nicely\nfunction conditionalPlural(x,singular,plural) {\n    if (x<=1) return x+\" \"+singular;\n    return x+\" \"+plural;\n}\n\n// Return the compass point of a bearing\nfunction compassPoint(b) {\n    if (b>337.5) return \"N\";\n    if (b>292.5) return \"NW\";\n    if (b>247.5) return \"W\";\n    if (b>202.5) return \"SW\";\n    if (b>157.5) return \"S\";\n    if (b>112.5) return \"SE\";\n    if (b>67.5) return \"E\";\n    if (b>22.5) return \"NE\";\n    return \"N\";\n}\n\n// Explanation of ship type\nfunction textVesselType(t){\n    const unexpected = \"unexpected\";\n    const reserved = \"reserved\";\n    const shipType_enum = [\n  unexpected, // 0\n  reserved,   // 1\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,\n  reserved,   //19\n  \"Wing in ground\", //20\n  \"Wing in ground, Hazardous category A\",\n  \"Wing in ground, Hazardous category B\",\n  \"Wing in ground, Hazardous category C\",\n  \"Wing in ground, Hazardous category D\",\n  \"Wing in ground\",\n  \"Wing in ground\",\n  \"Wing in ground\",\n  \"Wing in ground\",\n  \"Wing in ground\", //29\n  \"Fishing\",\n  \"Towing\",\n  \"Towing: length exceeds 200m or breadth exceeds 25m\",\n  \"Dredging or underwater operations\",\n  \"Diving operations\",\n  \"Military operations\",\n  \"Sailing\",\n  \"Pleasure craft\",\n  reserved,\n  reserved, //39\n  \"High speed craft\", //40\n  \"High speed craft, Hazardous category A\",\n  \"High speed craft, Hazardous category B\",\n  \"High speed craft, Hazardous category C\",\n  \"High speed craft, Hazardous category D\",\n  \"High speed craft\",\n  \"High speed craft\",\n  \"High speed craft\",\n  \"High speed craft\",\n  \"High speed craft\",\n  \"Pilot vessel\", //50\n  \"Search and rescue vessel\",\n  \"Tug\",\n  \"Port tender\",\n  \"Anti-pollution equipment\",\n  \"Law enforcement\",\n  \"Spare - Local Vessel\",\n  \"Spare - Local Vessel\",\n  \"Medical transport\",\n  \"Noncombatant ship according to RR Resolution No. 18\",\n  \"Passenger\", //60\n  \"Passenger, Hazardous category A\",\n  \"Passenger, Hazardous category B\",\n  \"Passenger, Hazardous category C\",\n  \"Passenger, Hazardous category D\",\n  \"Passenger\",\n  \"Passenger\",\n  \"Passenger\",\n  \"Passenger\",\n  \"Passenger\",\n  \"Cargo\", //70\n  \"Cargo, Hazardous category A\",\n  \"Cargo, Hazardous category B\",\n  \"Cargo, Hazardous category C\",\n  \"Cargo, Hazardous category D\",\n  \"Cargo\",\n  \"Cargo\",\n  \"Cargo\",\n  \"Cargo\",\n  \"Cargo\",\n  \"Tanker\", //80\n  \"Tanker, Hazardous category A\",\n  \"Tanker, Hazardous category B\",\n  \"Tanker, Hazardous category C\",\n  \"Tanker, Hazardous category D\",\n  \"Tanker\",\n  \"Tanker\",\n  \"Tanker\",\n  \"Tanker\",\n  \"Tanker\",\n  \"Other\", //90\n  \"Other, Hazardous category A\",\n  \"Other, Hazardous category B\",\n  \"Other, Hazardous category C\",\n  \"Other, Hazardous category D\",\n  \"Other\",\n  \"Other\",\n  \"Other\",\n  \"Other\",\n  \"Other\",\n    ];\n    if (t==null) return \"\";\n    if (t<shipType_enum.length) return shipType_enum[t] + \" (\"+ t +\")\";\n    return \"unknown (\"+t+\")\";\n}\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -294,25 +258,8 @@
         "y": 940,
         "wires": [
             [
-                "ad127bb313e9cc57"
+                "a02e62957fabef4b"
             ]
-        ]
-    },
-    {
-        "id": "ad127bb313e9cc57",
-        "type": "function",
-        "z": "248b38fb99b5cdfa",
-        "name": "Store map bounds",
-        "func": "switch (msg.payload.action) {\n    case \"bounds\" :\n        var bounds = {};\n        bounds.south = msg.payload.south;\n        bounds.west = msg.payload.west;\n        bounds.north = msg.payload.north;\n        bounds.east = msg.payload.east;\n        flow.set(\"mapBounds\", bounds);\n        break;\n}\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 350,
-        "y": 940,
-        "wires": [
-            []
         ]
     },
     {
@@ -511,6 +458,116 @@
         "wires": [
             [
                 "38e70872b6a823f2"
+            ]
+        ]
+    },
+    {
+        "id": "0161b25dd0ad0f1f",
+        "type": "inject",
+        "z": "248b38fb99b5cdfa",
+        "name": "Purge DB",
+        "props": [],
+        "repeat": "",
+        "crontab": "00 01 * * 0",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 460,
+        "wires": [
+            [
+                "d33974ce5118a352"
+            ]
+        ]
+    },
+    {
+        "id": "d33974ce5118a352",
+        "type": "sqlite",
+        "z": "248b38fb99b5cdfa",
+        "mydb": "295fca0c.9af166",
+        "sqlquery": "fixed",
+        "sql": "delete from tracks where tracks.time < strftime('%s','now')-86400*28;",
+        "name": "Delete old tracks",
+        "x": 350,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dfd87707fe88564a",
+        "type": "change",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "mapBounds",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 480,
+        "y": 940,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a02e62957fabef4b",
+        "type": "switch",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "property": "payload.action",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "bounds",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 270,
+        "y": 940,
+        "wires": [
+            [
+                "dfd87707fe88564a"
+            ]
+        ]
+    },
+    {
+        "id": "ce4b7bda8fa5d1fb",
+        "type": "change",
+        "z": "248b38fb99b5cdfa",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "params",
+                "pt": "msg",
+                "to": "{ \"$mmsi\" : msg.payload.mmsi }",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 300,
+        "y": 800,
+        "wires": [
+            [
+                "4ae065166a750319"
             ]
         ]
     },
