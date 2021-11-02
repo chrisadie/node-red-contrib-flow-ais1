@@ -37,6 +37,7 @@ You now need to install the node-red modules which this flow uses. They are
 `node-red-contrib-ais-decoder`, `node-red-contrib-web-worldmap` and
 `node-red-node-sqlite`. Then import and deploy the flow.
 
+## Usage
 To see the result, visit http://your.pis.ip.address:1880/main. The left side
 of the screen contains a list of recently-seen vessels -initially this will
 be empty, but as time goes on your AIS receiver will pick up more vessels and
